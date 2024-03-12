@@ -14,7 +14,7 @@ A collection of bookmarklets for Relativity(One) administrators.
 
 
 ### Show Audit
-Open a new window with an Audit Log of the currently displayed object. Useful for tracking down changes made to Saved Searches, Folders, or similar objects.
+Opens a new window with an Audit Log of the currently displayed object. Useful for tracking down changes made to Saved Searches, Folders, or similar objects. Simply run this bookmarklet while having the results of a saved search, folder, or any other object loaded.
 ```js
 let host = window.top.location.host;
 let urlparams = new URLSearchParams(window.top.location.search);
@@ -45,7 +45,7 @@ javascript:(function()%7Blet%20host%20%3D%20window.top.location.host%3Blet%20url
 ```
 
 ### Edit Longtext Field
-There are situations when you need to make manual adjustments to Extracted, OCR, or Transcribed Text of a specific document. This bookmarklet lets you edit any currently displayed longtext field straight from the document's Text Viewer without going through the hassle of creating an Import/Export task.
+There are situations when you need to make manual adjustments to Extracted Text, OCR Text, or Transcribed Text of a specific document. This bookmarklet lets you edit any currently displayed longtext field straight from the document's Text Viewer without going through the hassle of creating an Import/Export task.
 ```js
 let csrftoken = window.top.GetCsrfTokenFromPage();
 let host = window.top.location.host;
@@ -151,7 +151,7 @@ javascript:(function()%7Blet%20csrftoken%20%3D%20window.top.GetCsrfTokenFromPage
 ```
 
 ### Stop Inactivity Logout
-We all know how counter-productive an unexpected logout from Relativity can be. This bookmarklet calls the `resetExpirationTimeout` function every 5 minutes, making sure your session does not expire due to inactivity. Technically, only the first line is necessary, the rest of the code changes color of some UI elements to show you the script has been activated.
+We all know how counter-productive an unexpected logout from Relativity can be. This bookmarklet calls the `resetExpirationTimeout` function every 5 minutes, making sure your session does not expire due to inactivity. Technically, only the first line is necessary. The rest of the code changes color of several UI elements to indicate that the script has been activated.
 ```js
 const resetExpirationTimeoutd = setInterval(window.top.relativitySessionManager.resetExpirationTimeout, 300000);
 document.getElementById('nav_layout').style.backgroundColor = '#e2ebf3';
@@ -164,7 +164,7 @@ javascript:(function(){const resetExpirationTimeoutd = setInterval(window.top.re
 ```
 
 ### Republish Processing Sets
-Relativity(One) currently does not offer a Republish mass action on the Processing Set object. On large matters, there might be hundreds of Processing Sets at a time requiring Republish, such as after retrying document errors. This bookmarklet kicks off Republish of all currently selected Processing Sets.
+Relativity(One) does not offer a Republish mass action on the Processing Set object. On large matters, there might be hundreds of Processing Sets at a time requiring Republish, such as after retrying document errors. This bookmarklet allows you to kick off mass republish of all currently selected Processing Sets with a nice progress bar.
 ```js
 if (document.getElementsByClassName('os-header__breadcrumbs-element-last')[0].innerText == 'Processing Sets') {
 	let csrftoken = window.top.GetCsrfTokenFromPage();
@@ -365,15 +365,34 @@ This bookmarklet produces a CSV file with search conditions of all saved searche
 ```js
 let listpage = document.getElementById('_ListPage').contentWindow.document;
 let searchjsons = [];
-if (listpage.querySelector('rwc-tab[title="Saved Searches"][active]') !== null) {
+let searches = [];
+if (listpage.querySelector('rwc-tab[title="Saved Searches"][active]') !== null || listpage.querySelector('a.browser.browser-active[title="Saved Searches"]') !== null) {
 	let csrftoken = window.top.GetCsrfTokenFromPage();
 	let host = window.top.location.host;
 	let urlparams = new URLSearchParams(window.top.location.search);
 	let workspaceid = urlparams.get('AppID');
-	let searches = listpage.querySelector('rwc-tree').querySelectorAll('rwc-tree-node[icon-name="search"][check-value="true"]');
+	if (listpage.querySelector('rwc-tree') !== null) {
+		let nodes = listpage.querySelector('rwc-tree').querySelectorAll('rwc-tree-node[icon-name="search"][check-value="true"]');
+		for (let i = 0; i < nodes.length; i++) {
+			try {
+				searches.push(nodes[i].value);
+			} catch {}
+		}
+	} else {
+		let nodes = listpage.querySelector('div[name="savedSearch"]').querySelectorAll('li.jstree-leaf');
+		for (let i = 0; i < nodes.length; i++) {
+			try {
+				searches.push(nodes[i].querySelector('a.jstree-checked').attributes.id.value.replace('_anchor', ''));
+			} catch {}
+		}
+	}
 	if (searches.length == 0) {
 		alert('No Saved Searches have been selected for export.');
-		listpage.querySelector('button[title="Show Checkboxes"]').click();
+		if (listpage.querySelector('rwc-tree') !== null) {
+			listpage.querySelector('button[title="Show Checkboxes"]').click();
+		} else {
+			listpage.querySelector('div[name="savedSearch"]').querySelector('button.btn-show-checkbox').click();
+		}
 	} else {
 		for (let i = 0; i < searches.length; i++) {
 			fetch('https://' + host + '/Relativity.Rest/API/Relativity.Services.Search.ISearchModule/Keyword%20Search%20Manager/ReadSingleAsync', {
@@ -387,7 +406,7 @@ if (listpage.querySelector('rwc-tab[title="Saved Searches"][active]') !== null) 
 					'x-csrf-header': csrftoken
 				},
 				'referrerPolicy': 'strict-origin-when-cross-origin',
-				'body': '{"workspaceArtifactID":' + workspaceid.toString() + ',"searchArtifactID":' + searches[i].value.toString() + '}',
+				'body': '{"workspaceArtifactID":' + workspaceid.toString() + ',"searchArtifactID":' + searches[i].toString() + '}',
 				'method': 'POST',
 				'mode': 'cors',
 				'credentials': 'include'
@@ -406,7 +425,7 @@ if (listpage.querySelector('rwc-tab[title="Saved Searches"][active]') !== null) 
 							'x-csrf-header': csrftoken
 						},
 						'referrerPolicy': 'strict-origin-when-cross-origin',
-						'body': '{"workspaceArtifactID":' + workspaceid.toString() + ',"searchArtifactID":' + searches[i].value.toString() + '}',
+						'body': '{"workspaceArtifactID":' + workspaceid.toString() + ',"searchArtifactID":' + searches[i].toString() + '}',
 						'method': 'POST',
 						'mode': 'cors',
 						'credentials': 'include'
@@ -425,7 +444,7 @@ if (listpage.querySelector('rwc-tab[title="Saved Searches"][active]') !== null) 
 									'x-csrf-header': csrftoken
 								},
 								'referrerPolicy': 'strict-origin-when-cross-origin',
-								'body': '{"workspaceArtifactID":' + workspaceid.toString() + ',"searchArtifactID":' + searches[i].value.toString() + '}',
+								'body': '{"workspaceArtifactID":' + workspaceid.toString() + ',"searchArtifactID":' + searches[i].toString() + '}',
 								'method': 'POST',
 								'mode': 'cors',
 								'credentials': 'include'
@@ -521,11 +540,11 @@ if (listpage.querySelector('rwc-tab[title="Saved Searches"][active]') !== null) 
 ```
 To install this bookmarklet, create a new entry in your browser's Favorites Bar and set its URL to the following string:
 ```js
-javascript:(function()%7Blet%20listpage%20%3D%20document.getElementById('_ListPage').contentWindow.document%3Blet%20searchjsons%20%3D%20%5B%5D%3Bif%20(listpage.querySelector('rwc-tab%5Btitle%3D%22Saved%20Searches%22%5D%5Bactive%5D')%20!%3D%3D%20null)%20%7Blet%20csrftoken%20%3D%20window.top.GetCsrfTokenFromPage()%3Blet%20host%20%3D%20window.top.location.host%3Blet%20urlparams%20%3D%20new%20URLSearchParams(window.top.location.search)%3Blet%20workspaceid%20%3D%20urlparams.get('AppID')%3Blet%20searches%20%3D%20listpage.querySelector('rwc-tree').querySelectorAll('rwc-tree-node%5Bicon-name%3D%22search%22%5D%5Bcheck-value%3D%22true%22%5D')%3Bif%20(searches.length%20%3D%3D%200)%20%7Balert('No%20Saved%20Searches%20have%20been%20selected%20for%20export.')%3Blistpage.querySelector('button%5Btitle%3D%22Show%20Checkboxes%22%5D').click()%3B%7D%20else%20%7Bfor%20(let%20i%20%3D%200%3B%20i%20%3C%20searches.length%3B%20i%2B%2B)%20%7Bfetch('https%3A%2F%2F'%20%2B%20host%20%2B%20'%2FRelativity.Rest%2FAPI%2FRelativity.Services.Search.ISearchModule%2FKeyword%2520Search%2520Manager%2FReadSingleAsync'%2C%20%7B'headers'%3A%20%7B'accept'%3A%20'*%2F*'%2C'accept-language'%3A%20'en-US%2Cen%3Bq%3D0.9'%2C'content-type'%3A%20'application%2Fjson'%2C'sec-fetch-dest'%3A%20'empty'%2C'sec-fetch-mode'%3A%20'cors'%2C'sec-fetch-site'%3A%20'same-origin'%2C'x-csrf-header'%3A%20csrftoken%7D%2C'referrerPolicy'%3A%20'strict-origin-when-cross-origin'%2C'body'%3A%20'%7B%22workspaceArtifactID%22%3A'%20%2B%20workspaceid.toString()%20%2B%20'%2C%22searchArtifactID%22%3A'%20%2B%20searches%5Bi%5D.value.toString()%20%2B%20'%7D'%2C'method'%3A%20'POST'%2C'mode'%3A%20'cors'%2C'credentials'%3A%20'include'%7D).then(response%20%3D%3E%20%7Breturn%20response.json()%3B%7D).then(jsn%20%3D%3E%20%7Bif%20(JSON.stringify(jsn)%20%3D%3D%20'%7B%22ErrorType%22%3A%22Relativity.Services.Exceptions.ServiceException%22%2C%22Identifier%22%3A%22%22%2C%22Message%22%3A%22Artifact%20matching%20that%20Artifact%20ID%20not%20found.%22%7D')%20%7Bfetch('https%3A%2F%2F'%20%2B%20host%20%2B%20'%2FRelativity.Rest%2FAPI%2FRelativity.Services.Search.ISearchModule%2FAnalytics%2520Search%2520Manager%2FReadSingleAsync'%2C%20%7B'headers'%3A%20%7B'accept'%3A%20'*%2F*'%2C'accept-language'%3A%20'en-US%2Cen%3Bq%3D0.9'%2C'content-type'%3A%20'application%2Fjson'%2C'sec-fetch-dest'%3A%20'empty'%2C'sec-fetch-mode'%3A%20'cors'%2C'sec-fetch-site'%3A%20'same-origin'%2C'x-csrf-header'%3A%20csrftoken%7D%2C'referrerPolicy'%3A%20'strict-origin-when-cross-origin'%2C'body'%3A%20'%7B%22workspaceArtifactID%22%3A'%20%2B%20workspaceid.toString()%20%2B%20'%2C%22searchArtifactID%22%3A'%20%2B%20searches%5Bi%5D.value.toString()%20%2B%20'%7D'%2C'method'%3A%20'POST'%2C'mode'%3A%20'cors'%2C'credentials'%3A%20'include'%7D).then(response%20%3D%3E%20%7Breturn%20response.json()%3B%7D).then(jsn%20%3D%3E%20%7Bif%20(JSON.stringify(jsn)%20%3D%3D%20'%7B%22ErrorType%22%3A%22Relativity.Services.Exceptions.ServiceException%22%2C%22Identifier%22%3A%22%22%2C%22Message%22%3A%22Artifact%20matching%20that%20Artifact%20ID%20not%20found.%22%7D')%20%7Bfetch('https%3A%2F%2F'%20%2B%20host%20%2B%20'%2FRelativity.Rest%2FAPI%2FRelativity.Services.Search.ISearchModule%2FdtSearch%2520Manager%2FReadSingleAsync%09'%2C%20%7B'headers'%3A%20%7B'accept'%3A%20'*%2F*'%2C'accept-language'%3A%20'en-US%2Cen%3Bq%3D0.9'%2C'content-type'%3A%20'application%2Fjson'%2C'sec-fetch-dest'%3A%20'empty'%2C'sec-fetch-mode'%3A%20'cors'%2C'sec-fetch-site'%3A%20'same-origin'%2C'x-csrf-header'%3A%20csrftoken%7D%2C'referrerPolicy'%3A%20'strict-origin-when-cross-origin'%2C'body'%3A%20'%7B%22workspaceArtifactID%22%3A'%20%2B%20workspaceid.toString()%20%2B%20'%2C%22searchArtifactID%22%3A'%20%2B%20searches%5Bi%5D.value.toString()%20%2B%20'%7D'%2C'method'%3A%20'POST'%2C'mode'%3A%20'cors'%2C'credentials'%3A%20'include'%7D).then(response%20%3D%3E%20%7Breturn%20response.json()%3B%7D).then(jsn%20%3D%3E%20%7Bsearchjsons.push(jsn)%3Bif%20(searchjsons.length%20%3D%3D%20searches.length)%20%7BdownloadCSV()%3B%7D%7D)%3B%7D%20else%20%7Bsearchjsons.push(jsn)%3Bif%20(searchjsons.length%20%3D%3D%20searches.length)%20%7BdownloadCSV()%3B%7D%7D%7D)%3B%7D%20else%20%7Bsearchjsons.push(jsn)%3Bif%20(searchjsons.length%20%3D%3D%20searches.length)%20%7BdownloadCSV()%3B%7D%7D%7D)%3B%7Dfunction%20isScalar(value)%20%7Breturn%20(%2Fstring%7Cnumber%7Cboolean%2F).test(typeof%20value)%3B%7Dfunction%20flattenObject(obj%2C%20prefix%20%3D%20'')%20%7Blet%20result%20%3D%20%7B%7D%3Bfor%20(const%20%5Bkey%2C%20value%5D%20of%20Object.entries(obj))%20%7Bconst%20newKey%20%3D%20prefix%20%3F%20%60%24%7Bprefix%7D.%24%7Bkey%7D%60%20%3A%20key%3Bif%20(Array.isArray(value))%20%7Bif%20(value.every(isScalar))%20%7Bresult%5BnewKey%5D%20%3D%20value.join('%3B%20')%3B%7D%20else%20%7Bfor%20(let%20i%20%3D%200%3B%20i%20%3C%20value.length%3B%20i%2B%2B)%20%7Bconst%20tempResult%20%3D%20flattenObject(value%5Bi%5D%2C%20%60%24%7BnewKey%7D.%24%7Bi%7D%60)%3Bresult%20%3D%20%7B...result%2C...tempResult%7D%3B%7D%7D%7D%20else%20if%20(typeof%20value%20%3D%3D%3D%20'object'%20%26%26%20value%20!%3D%3D%20null)%20%7Bconst%20tempResult%20%3D%20flattenObject(value%2C%20newKey)%3Bresult%20%3D%20%7B...result%2C...tempResult%7D%3B%7D%20else%20%7Bresult%5BnewKey%5D%20%3D%20value%3B%7D%7Dreturn%20result%3B%7Dfunction%20getAllKeys(data)%20%7Blet%20keysSet%20%3D%20new%20Set()%3Bdata.forEach(item%20%3D%3E%20%7Bconst%20flattened%20%3D%20flattenObject(item)%3BObject.keys(flattened).forEach(key%20%3D%3E%20keysSet.add(key))%3B%7D)%3Breturn%20Array.from(keysSet)%3B%7Dfunction%20generateCSV(data)%20%7Bconst%20keys%20%3D%20getAllKeys(data)%3Bconst%20flattenedData%20%3D%20data.map(item%20%3D%3E%20flattenObject(item))%3Bconst%20csvRows%20%3D%20flattenedData.map(obj%20%3D%3E%20%7Breturn%20keys.map(key%20%3D%3E%20%60%22%24%7BString(obj%5Bkey%5D%20%3F%3F%20'').replace(%2F%22%2Fg%2C%20'%22%22')%7D%22%60).join('%2C')%3B%7D)%3Breturn%20%5Bkeys.join('%2C')%2C%20...csvRows%5D.join('%5Cn')%3B%7Dfunction%20downloadCSV()%20%7Blet%20blob%20%3D%20new%20Blob(%5B'%5Cufeff'%2C%20generateCSV(searchjsons)%5D%2C%20%7Btype%3A%20'text%2Fcsv'%7D)%3Blet%20objectUrl%20%3D%20URL.createObjectURL(blob)%3Blet%20dlink%20%3D%20document.createElement('a')%3Bdlink.setAttribute('href'%2C%20objectUrl)%3Bdlink.setAttribute('download'%2C%20'SavedSearches.csv')%3Bdlink.click()%3B%7D%7D%7D%7D)()
+javascript:(function()%7Blet%20listpage%20%3D%20document.getElementById('_ListPage').contentWindow.document%3Blet%20searchjsons%20%3D%20%5B%5D%3Blet%20searches%20%3D%20%5B%5D%3Bif%20(listpage.querySelector('rwc-tab%5Btitle%3D%22Saved%20Searches%22%5D%5Bactive%5D')%20!%3D%3D%20null%20%7C%7C%20listpage.querySelector('a.browser.browser-active%5Btitle%3D%22Saved%20Searches%22%5D')%20!%3D%3D%20null)%20%7Blet%20csrftoken%20%3D%20window.top.GetCsrfTokenFromPage()%3Blet%20host%20%3D%20window.top.location.host%3Blet%20urlparams%20%3D%20new%20URLSearchParams(window.top.location.search)%3Blet%20workspaceid%20%3D%20urlparams.get('AppID')%3Bif%20(listpage.querySelector('rwc-tree')%20!%3D%3D%20null)%20%7Blet%20nodes%20%3D%20listpage.querySelector('rwc-tree').querySelectorAll('rwc-tree-node%5Bicon-name%3D%22search%22%5D%5Bcheck-value%3D%22true%22%5D')%3Bfor%20(let%20i%20%3D%200%3B%20i%20%3C%20nodes.length%3B%20i%2B%2B)%20%7Btry%20%7Bsearches.push(nodes%5Bi%5D.value)%3B%7D%20catch%20%7B%7D%7D%7D%20else%20%7Blet%20nodes%20%3D%20listpage.querySelector('div%5Bname%3D%22savedSearch%22%5D').querySelectorAll('li.jstree-leaf')%3Bfor%20(let%20i%20%3D%200%3B%20i%20%3C%20nodes.length%3B%20i%2B%2B)%20%7Btry%20%7Bsearches.push(nodes%5Bi%5D.querySelector('a.jstree-checked').attributes.id.value.replace('_anchor'%2C%20''))%3B%7D%20catch%20%7B%7D%7D%7Dif%20(searches.length%20%3D%3D%200)%20%7Balert('No%20Saved%20Searches%20have%20been%20selected%20for%20export.')%3Bif%20(listpage.querySelector('rwc-tree')%20!%3D%3D%20null)%20%7Blistpage.querySelector('button%5Btitle%3D%22Show%20Checkboxes%22%5D').click()%3B%7D%20else%20%7Blistpage.querySelector('div%5Bname%3D%22savedSearch%22%5D').querySelector('button.btn-show-checkbox').click()%3B%7D%7D%20else%20%7Bfor%20(let%20i%20%3D%200%3B%20i%20%3C%20searches.length%3B%20i%2B%2B)%20%7Bfetch('https%3A%2F%2F'%20%2B%20host%20%2B%20'%2FRelativity.Rest%2FAPI%2FRelativity.Services.Search.ISearchModule%2FKeyword%2520Search%2520Manager%2FReadSingleAsync'%2C%20%7B'headers'%3A%20%7B'accept'%3A%20'*%2F*'%2C'accept-language'%3A%20'en-US%2Cen%3Bq%3D0.9'%2C'content-type'%3A%20'application%2Fjson'%2C'sec-fetch-dest'%3A%20'empty'%2C'sec-fetch-mode'%3A%20'cors'%2C'sec-fetch-site'%3A%20'same-origin'%2C'x-csrf-header'%3A%20csrftoken%7D%2C'referrerPolicy'%3A%20'strict-origin-when-cross-origin'%2C'body'%3A%20'%7B%22workspaceArtifactID%22%3A'%20%2B%20workspaceid.toString()%20%2B%20'%2C%22searchArtifactID%22%3A'%20%2B%20searches%5Bi%5D.toString()%20%2B%20'%7D'%2C'method'%3A%20'POST'%2C'mode'%3A%20'cors'%2C'credentials'%3A%20'include'%7D).then(response%20%3D%3E%20%7Breturn%20response.json()%3B%7D).then(jsn%20%3D%3E%20%7Bif%20(JSON.stringify(jsn)%20%3D%3D%20'%7B%22ErrorType%22%3A%22Relativity.Services.Exceptions.ServiceException%22%2C%22Identifier%22%3A%22%22%2C%22Message%22%3A%22Artifact%20matching%20that%20Artifact%20ID%20not%20found.%22%7D')%20%7Bfetch('https%3A%2F%2F'%20%2B%20host%20%2B%20'%2FRelativity.Rest%2FAPI%2FRelativity.Services.Search.ISearchModule%2FAnalytics%2520Search%2520Manager%2FReadSingleAsync'%2C%20%7B'headers'%3A%20%7B'accept'%3A%20'*%2F*'%2C'accept-language'%3A%20'en-US%2Cen%3Bq%3D0.9'%2C'content-type'%3A%20'application%2Fjson'%2C'sec-fetch-dest'%3A%20'empty'%2C'sec-fetch-mode'%3A%20'cors'%2C'sec-fetch-site'%3A%20'same-origin'%2C'x-csrf-header'%3A%20csrftoken%7D%2C'referrerPolicy'%3A%20'strict-origin-when-cross-origin'%2C'body'%3A%20'%7B%22workspaceArtifactID%22%3A'%20%2B%20workspaceid.toString()%20%2B%20'%2C%22searchArtifactID%22%3A'%20%2B%20searches%5Bi%5D.toString()%20%2B%20'%7D'%2C'method'%3A%20'POST'%2C'mode'%3A%20'cors'%2C'credentials'%3A%20'include'%7D).then(response%20%3D%3E%20%7Breturn%20response.json()%3B%7D).then(jsn%20%3D%3E%20%7Bif%20(JSON.stringify(jsn)%20%3D%3D%20'%7B%22ErrorType%22%3A%22Relativity.Services.Exceptions.ServiceException%22%2C%22Identifier%22%3A%22%22%2C%22Message%22%3A%22Artifact%20matching%20that%20Artifact%20ID%20not%20found.%22%7D')%20%7Bfetch('https%3A%2F%2F'%20%2B%20host%20%2B%20'%2FRelativity.Rest%2FAPI%2FRelativity.Services.Search.ISearchModule%2FdtSearch%2520Manager%2FReadSingleAsync%09'%2C%20%7B'headers'%3A%20%7B'accept'%3A%20'*%2F*'%2C'accept-language'%3A%20'en-US%2Cen%3Bq%3D0.9'%2C'content-type'%3A%20'application%2Fjson'%2C'sec-fetch-dest'%3A%20'empty'%2C'sec-fetch-mode'%3A%20'cors'%2C'sec-fetch-site'%3A%20'same-origin'%2C'x-csrf-header'%3A%20csrftoken%7D%2C'referrerPolicy'%3A%20'strict-origin-when-cross-origin'%2C'body'%3A%20'%7B%22workspaceArtifactID%22%3A'%20%2B%20workspaceid.toString()%20%2B%20'%2C%22searchArtifactID%22%3A'%20%2B%20searches%5Bi%5D.toString()%20%2B%20'%7D'%2C'method'%3A%20'POST'%2C'mode'%3A%20'cors'%2C'credentials'%3A%20'include'%7D).then(response%20%3D%3E%20%7Breturn%20response.json()%3B%7D).then(jsn%20%3D%3E%20%7Bsearchjsons.push(jsn)%3Bif%20(searchjsons.length%20%3D%3D%20searches.length)%20%7BdownloadCSV()%3B%7D%7D)%3B%7D%20else%20%7Bsearchjsons.push(jsn)%3Bif%20(searchjsons.length%20%3D%3D%20searches.length)%20%7BdownloadCSV()%3B%7D%7D%7D)%3B%7D%20else%20%7Bsearchjsons.push(jsn)%3Bif%20(searchjsons.length%20%3D%3D%20searches.length)%20%7BdownloadCSV()%3B%7D%7D%7D)%3B%7Dfunction%20isScalar(value)%20%7Breturn%20(%2Fstring%7Cnumber%7Cboolean%2F).test(typeof%20value)%3B%7Dfunction%20flattenObject(obj%2C%20prefix%20%3D%20'')%20%7Blet%20result%20%3D%20%7B%7D%3Bfor%20(const%20%5Bkey%2C%20value%5D%20of%20Object.entries(obj))%20%7Bconst%20newKey%20%3D%20prefix%20%3F%20%60%24%7Bprefix%7D.%24%7Bkey%7D%60%20%3A%20key%3Bif%20(Array.isArray(value))%20%7Bif%20(value.every(isScalar))%20%7Bresult%5BnewKey%5D%20%3D%20value.join('%3B%20')%3B%7D%20else%20%7Bfor%20(let%20i%20%3D%200%3B%20i%20%3C%20value.length%3B%20i%2B%2B)%20%7Bconst%20tempResult%20%3D%20flattenObject(value%5Bi%5D%2C%20%60%24%7BnewKey%7D.%24%7Bi%7D%60)%3Bresult%20%3D%20%7B...result%2C...tempResult%7D%3B%7D%7D%7D%20else%20if%20(typeof%20value%20%3D%3D%3D%20'object'%20%26%26%20value%20!%3D%3D%20null)%20%7Bconst%20tempResult%20%3D%20flattenObject(value%2C%20newKey)%3Bresult%20%3D%20%7B...result%2C...tempResult%7D%3B%7D%20else%20%7Bresult%5BnewKey%5D%20%3D%20value%3B%7D%7Dreturn%20result%3B%7Dfunction%20getAllKeys(data)%20%7Blet%20keysSet%20%3D%20new%20Set()%3Bdata.forEach(item%20%3D%3E%20%7Bconst%20flattened%20%3D%20flattenObject(item)%3BObject.keys(flattened).forEach(key%20%3D%3E%20keysSet.add(key))%3B%7D)%3Breturn%20Array.from(keysSet)%3B%7Dfunction%20generateCSV(data)%20%7Bconst%20keys%20%3D%20getAllKeys(data)%3Bconst%20flattenedData%20%3D%20data.map(item%20%3D%3E%20flattenObject(item))%3Bconst%20csvRows%20%3D%20flattenedData.map(obj%20%3D%3E%20%7Breturn%20keys.map(key%20%3D%3E%20%60%22%24%7BString(obj%5Bkey%5D%20%3F%3F%20'').replace(%2F%22%2Fg%2C%20'%22%22')%7D%22%60).join('%2C')%3B%7D)%3Breturn%20%5Bkeys.join('%2C')%2C%20...csvRows%5D.join('%5Cn')%3B%7Dfunction%20downloadCSV()%20%7Blet%20blob%20%3D%20new%20Blob(%5B'%5Cufeff'%2C%20generateCSV(searchjsons)%5D%2C%20%7Btype%3A%20'text%2Fcsv'%7D)%3Blet%20objectUrl%20%3D%20URL.createObjectURL(blob)%3Blet%20dlink%20%3D%20document.createElement('a')%3Bdlink.setAttribute('href'%2C%20objectUrl)%3Bdlink.setAttribute('download'%2C%20'SavedSearches.csv')%3Bdlink.click()%3B%7D%7D%7D%7D)()
 ```
 
 ### Download Native File
-In some scenarios, Relativity's UI does not let you download a native version of a document (i.e., due to the [ECA](https://help.relativity.com/RelativityOne/Content/Relativity/ECAv2_Overview.htm) app being installed in the workspace). This bookmarklet lets you download the currently displayed document's native file without going through the hassle of creating an Import/Export task.
+In some scenarios, Relativity does not let you download a native version of a document (i.e., due to the [ECA](https://help.relativity.com/RelativityOne/Content/Relativity/ECAv2_Overview.htm) app being installed in the workspace). This bookmarklet lets you download the currently displayed document's native file without going through the hassle of creating an Import/Export task.
 ```js
 let host = window.top.location.host;
 let urlparams = new URLSearchParams(window.top.location.search);
