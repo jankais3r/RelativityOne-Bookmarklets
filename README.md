@@ -30,8 +30,8 @@ if (artifactid === null) {
 		if (artifactid === null) {
 			artifactid = urlparams.get('ArtifactID');
 			if (artifactid === null) {
-				urlparams = new URLSearchParams(urlparams.get('directto'));
-				artifactid = urlparams.get('ArtifactID');
+				let queryurl = new URL('https://' + host + '?' + urlparams.get('directto').split('?')[1]);
+				artifactid = queryurl.searchParams.get('ArtifactID');
 			}
 		}
 	}
@@ -44,7 +44,7 @@ if (artifactid === null) {
 ```
 To install this bookmarklet, create a new entry in your browser's Favorites Bar and set its URL to the following string:
 ```js
-javascript:(function()%7Blet%20host%20%3D%20window.top.location.host%3Blet%20urlparams%20%3D%20new%20URLSearchParams(window.top.location.search)%3Blet%20workspaceid%20%3D%20urlparams.get('AppID')%3Blet%20artifactid%20%3D%20urlparams.get('SelectedSearchArtifactID')%3Bif%20(artifactid%20%3D%3D%3D%20null)%20%7Bartifactid%20%3D%20urlparams.get('SelectedFolderArtifactID')%3Bif%20(artifactid%20%3D%3D%3D%20null)%20%7Bartifactid%20%3D%20urlparams.get('DocumentID')%3Bif%20(artifactid%20%3D%3D%3D%20null)%20%7Bartifactid%20%3D%20urlparams.get('ArtifactID')%3Bif%20(artifactid%20%3D%3D%3D%20null)%20%7Burlparams%20%3D%20new%20URLSearchParams(urlparams.get('directto'))%3Bartifactid%20%3D%20urlparams.get('ArtifactID')%3B%7D%7D%7D%7Dif%20(artifactid%20%3D%3D%3D%20null)%20%7Balert('No%20ArtifactID%20field%20found')%3B%7D%20else%20%7Bwindow.open('https%3A%2F%2F'%20%2B%20host%20%2B%20'%2FRelativity%2F%2FAudit.aspx%3FAppID%3D'%20%2B%20workspaceid.toString()%20%2B%20'%26ArtifactID%3D'%20%2B%20artifactid.toString()%2C%20'_blank'%2C%20'popup')%3B%7D%7D)()
+javascript:(function()%7Blet%20host%20%3D%20window.top.location.host%3Blet%20urlparams%20%3D%20new%20URLSearchParams(window.top.location.search)%3Blet%20workspaceid%20%3D%20urlparams.get('AppID')%3Blet%20artifactid%20%3D%20urlparams.get('SelectedSearchArtifactID')%3Bif%20(artifactid%20%3D%3D%3D%20null)%20%7Bartifactid%20%3D%20urlparams.get('SelectedFolderArtifactID')%3Bif%20(artifactid%20%3D%3D%3D%20null)%20%7Bartifactid%20%3D%20urlparams.get('DocumentID')%3Bif%20(artifactid%20%3D%3D%3D%20null)%20%7Bartifactid%20%3D%20urlparams.get('ArtifactID')%3Bif%20(artifactid%20%3D%3D%3D%20null)%20%7Blet%20queryurl%20%3D%20new%20URL('https%3A%2F%2F'%20%2B%20host%20%2B%20'%3F'%20%2B%20urlparams.get('directto').split('%3F')%5B1%5D)%3Bartifactid%20%3D%20queryurl.searchParams.get('ArtifactID')%3B%7D%7D%7D%7Dif%20(artifactid%20%3D%3D%3D%20null)%20%7Balert('No%20ArtifactID%20field%20found')%3B%7D%20else%20%7Bwindow.open('https%3A%2F%2F'%20%2B%20host%20%2B%20'%2FRelativity%2F%2FAudit.aspx%3FAppID%3D'%20%2B%20workspaceid.toString()%20%2B%20'%26ArtifactID%3D'%20%2B%20artifactid.toString()%2C%20'_blank'%2C%20'popup')%3B%7D%7D)()
 ```
 
 ### Edit Longtext Field
