@@ -11,6 +11,7 @@ A collection of bookmarklets for Relativity(One) administrators.
 - [Export Saved Searches](#export-saved-searches)
 - [Show Import/Export Job Configuration](#show-importexport-job-configuration)
 - [Filter Analytics Entities From All Custodians](#filter-analytics-entities-from-all-custodians)
+- [Filter for Several Multiple Choices](#filter-for-several-multiple-choices)
 - [Download Native File (ECA workspace)](#download-native-file)
 - [Show Active Learning Projects (ECA workspace)](#show-active-learning-projects)
 - [Show Batch Sets (ECA workspace)](#show-batch-sets)
@@ -1018,6 +1019,162 @@ fetch('https://' + host + '/Relativity.Rest/API/Relativity.Objects/workspace/' +
 To install this bookmarklet, create a new entry in your browser's Favorites Bar and set its URL to the following string:
 ```js
 javascript:(function()%7Blet%20csrftoken%20%3D%20window.top.GetCsrfTokenFromPage()%3Blet%20host%20%3D%20window.top.location.host%3Blet%20urlparams%20%3D%20new%20URLSearchParams(window.top.location.search)%3Blet%20workspaceid%20%3D%20urlparams.get('AppID')%3Blet%20listpage%20%3D%20document.getElementById('_ListPage').contentWindow%3Bfetch('https%3A%2F%2F'%20%2B%20host%20%2B%20'%2FRelativity.Rest%2FAPI%2FRelativity.Objects%2Fworkspace%2F'%20%2B%20workspaceid.toString()%20%2B%20'%2Fobject%2Fqueryslim'%2C%20%7B'headers'%3A%20%7B'accept'%3A%20'*%2F*'%2C'accept-language'%3A%20'en-US%2Cen%3Bq%3D0.9'%2C'content-type'%3A%20'application%2Fjson'%2C'sec-fetch-dest'%3A%20'empty'%2C'sec-fetch-mode'%3A%20'cors'%2C'sec-fetch-site'%3A%20'same-origin'%2C'x-csrf-header'%3A%20csrftoken%7D%2C'referrerPolicy'%3A%20'strict-origin-when-cross-origin'%2C'body'%3A%20'%7B%22request%22%3A%7B%22objectType%22%3A%7B%22artifactTypeID%22%3A7%7D%2C%22fields%22%3A%5B%7B%22Name%22%3A%22Artifact%20ID%22%2C%22ViewFieldID%22%3A1000467%7D%5D%2C%22condition%22%3A%22%22%2C%22rowCondition%22%3A%22(%5C'Name%5C'%20IN%20%5B%5C'Custodian%20%E2%80%93%20Processing%5C'%5D)%22%2C%22sorts%22%3A%5B%5D%2C%22relationalField%22%3Anull%2C%22searchProviderCondition%22%3Anull%2C%22includeIdWindow%22%3Atrue%2C%22convertNumberFieldValuesToString%22%3Atrue%2C%22isAdHocQuery%22%3Afalse%2C%22queryHint%22%3Anull%2C%22sampleParameters%22%3Anull%2C%22rankSortOrder%22%3Anull%2C%22cancellable%22%3Atrue%7D%2C%22start%22%3A1%2C%22length%22%3A200%7D'%2C'method'%3A%20'POST'%2C'mode'%3A%20'cors'%2C'credentials'%3A%20'include'%7D).then(response%20%3D%3E%20%7Breturn%20response.json()%3B%7D).then(jsn%20%3D%3E%20%7Blet%20multichoice%20%3D%20jsn%5B'IDWindow'%5D%5B0%5D%3Bfetch('https%3A%2F%2F'%20%2B%20host%20%2B%20'%2FRelativity.Rest%2FAPI%2FRelativity.Objects%2Fworkspace%2F'%20%2B%20workspaceid.toString()%20%2B%20'%2Fobject%2Fqueryslim'%2C%20%7B'headers'%3A%20%7B'accept'%3A%20'*%2F*'%2C'accept-language'%3A%20'en-US%2Cen%3Bq%3D0.9'%2C'content-type'%3A%20'application%2Fjson'%2C'sec-fetch-dest'%3A%20'empty'%2C'sec-fetch-mode'%3A%20'cors'%2C'sec-fetch-site'%3A%20'same-origin'%2C'x-csrf-header'%3A%20csrftoken%7D%2C'referrerPolicy'%3A%20'strict-origin-when-cross-origin'%2C'body'%3A%20'%7B%22request%22%3A%7B%22objectType%22%3A%7B%22artifactTypeID%22%3A25%7D%2C%22fields%22%3A%5B%7B%22Name%22%3A%22Artifact%20Type%20ID%22%2C%22ViewFieldID%22%3A1000742%7D%5D%2C%22condition%22%3A%22%22%2C%22rowCondition%22%3A%22(%5C'Name%5C'%20IN%20%5B%5C'Entity%5C'%5D)%22%2C%22sorts%22%3A%5B%5D%2C%22relationalField%22%3Anull%2C%22searchProviderCondition%22%3Anull%2C%22includeIdWindow%22%3Atrue%2C%22convertNumberFieldValuesToString%22%3Atrue%2C%22isAdHocQuery%22%3Afalse%2C%22queryHint%22%3Anull%2C%22sampleParameters%22%3Anull%2C%22rankSortOrder%22%3Anull%2C%22cancellable%22%3Atrue%7D%2C%22start%22%3A1%2C%22length%22%3A200%7D'%2C'method'%3A%20'POST'%2C'mode'%3A%20'cors'%2C'credentials'%3A%20'include'%7D).then(response%20%3D%3E%20%7Breturn%20response.json()%3B%7D).then(jsn%20%3D%3E%20%7Blet%20artifacttypeid%20%3D%20jsn%5B'Objects'%5D%5B0%5D%5B'Values'%5D%5B0%5D%3Bif%20(listpage.XMLHttpRequest.prototype.nativeSend%20%3D%3D%3D%20undefined)%20%7Blistpage.XMLHttpRequest.prototype.nativeSend%20%3D%20listpage.XMLHttpRequest.prototype.send%3B%7Dlistpage.XMLHttpRequest.prototype.send%20%3D%20function(xhrdata)%20%7Btry%20%7Blet%20jsonobject%20%3D%20JSON.parse(xhrdata)%3Bif%20(jsonobject.request.objectType.artifactTypeID%20%3D%3D%20artifacttypeid)%20%7Bif%20(jsonobject.request.rowCondition%20%3D%3D%20'')%20%7Bjsonobject.request.rowCondition%20%3D%20%22('Classification'%20INTERSECTS%20MULTICHOICE%20%5B%22%20%2B%20multichoice.toString()%20%2B%20%22%5D)%22%3B%7D%20else%20%7Bjsonobject.request.rowCondition%20%3D%20jsonobject.request.rowCondition.substring(0%2C%20jsonobject.request.rowCondition.length%20-%201)%20%2B%20%22%20AND%20'Classification'%20INTERSECTS%20MULTICHOICE%20%5B%22%20%2B%20multichoice.toString()%20%2B%20%22%5D)%22%3B%7Dthis.nativeSend(JSON.stringify(jsonobject))%3B%7D%20else%20%7Bthis.nativeSend(xhrdata)%3B%7D%7D%20catch%20%7Bthis.nativeSend(xhrdata)%3B%7D%7D%3Btry%20%7Blistpage.document.querySelector('rwc-modal-layout.auto-width').querySelector('span%5Bslot%3D%22actions%22%5D').addEventListener('click'%2C%20function(event)%20%7Blistpage.XMLHttpRequest.prototype.send%20%3D%20listpage.XMLHttpRequest.prototype.nativeSend%3B%7D)%3B%7D%20catch%20%7Btry%20%7Blistpage.document.querySelector('rwc-modal-layout.medium').querySelector('span%5Bslot%3D%22actions%22%5D').addEventListener('click'%2C%20function(event)%20%7Blistpage.XMLHttpRequest.prototype.send%20%3D%20listpage.XMLHttpRequest.prototype.nativeSend%3B%7D)%3B%7D%20catch%20%7Btry%20%7Blistpage.document.querySelector('div.saved-search-viewer').querySelector('div.modal-footer').addEventListener('click'%2C%20function(event)%20%7Blistpage.XMLHttpRequest.prototype.send%20%3D%20listpage.XMLHttpRequest.prototype.nativeSend%3B%7D)%3B%7D%20catch%20%7Btry%20%7Blistpage.document.querySelector('div.modal-container').querySelector('div.modal-footer').addEventListener('click'%2C%20function(event)%20%7Blistpage.XMLHttpRequest.prototype.send%20%3D%20listpage.XMLHttpRequest.prototype.nativeSend%3B%7D)%3B%7D%20catch%20%7Blistpage.XMLHttpRequest.prototype.send%20%3D%20listpage.XMLHttpRequest.prototype.nativeSend%3B%7D%7D%7D%7D%7D)%3B%7D)%7D)()
+```
+
+### Filter for Several Multiple Choices
+Relativity does not allow pasting of more than one choice at a time when filtering a multiple choice field. Run this bookmarklet with the field filter interface open, and paste your newline-delimited choices in the search box. The script will automatically iterate over the pasted choices and add them to the search conditions for you.
+```js
+let listpage = document.getElementById('_ListPage').contentWindow;
+if (listpage.document.querySelector('rwc-multi-list-picker') !== null) {
+	window.newui = true;
+} else {
+	window.newui = false;
+}
+
+if (window.newui) {
+	window.addButton = listpage.document.querySelector('rwc-multi-list-picker').shadowRoot.querySelector('rwc-side-by-side-picker').shadowRoot.querySelector('button[title="Move all left to right"]');
+	window.searchBox = listpage.document.querySelector('rwc-multi-list-picker').shadowRoot.querySelector('rwc-item-list[slot="left"]').shadowRoot.querySelector('rwc-grid').shadowRoot.querySelector('rwc-text-condition-input').shadowRoot.querySelector('input');
+	window.inputTable = listpage.document.querySelector('rwc-multi-list-picker').shadowRoot.querySelector('rwc-item-list[slot="left"]').shadowRoot.querySelector('rwc-grid').shadowRoot.querySelector('div.rwa-grid__content').querySelector('table');
+	window.outputTable = listpage.document.querySelector('rwc-multi-list-picker').shadowRoot.querySelector('rwc-item-list[slot="right"]').shadowRoot.querySelector('rwc-grid').shadowRoot.querySelector('div.rwa-grid__content').querySelector('table');
+} else {
+	window.addButton = listpage.document.querySelector('button[title="Move All"]');
+	window.searchBox = listpage.document.querySelector('div.multi-select-list-list[name="available"]').querySelector('input');
+	window.inputTable = listpage.document.querySelector('div.multi-select-list-list[name="available"]').querySelector('ul');
+	window.outputTable = listpage.document.querySelector('div.multi-select-list-list[name="selected"]').querySelector('ul');
+}
+window.foundChoices = [];
+window.missingChoices = [];
+
+let modaldialog;
+if (document.getElementById('modaldialog')) {
+	modaldialog = document.getElementById('modaldialog');
+	modaldialog.innerHTML = '<pre></pre>'
+} else {
+	modaldialog = document.createElement('div');
+	modaldialog.id = 'modaldialog';
+	modaldialog.style = 'display: none;';
+	document.body.appendChild(modaldialog);
+}
+
+function pressEnter(element) {
+	let eventOptions = {
+		key: 'Enter',
+		keyCode: 13,
+		code: 'Enter',
+		which: 13,
+		bubbles: true,
+		cancelable: true
+	};
+
+	let event = new KeyboardEvent('keydown', eventOptions);
+	element.dispatchEvent(event);
+
+	event = new InputEvent('input', {
+		bubbles: true,
+		cancelable: true,
+		inputType: 'insertText',
+		data: element.value
+	});
+	element.dispatchEvent(event);
+
+	event = new KeyboardEvent('keypress', eventOptions);
+	element.dispatchEvent(event);
+
+	event = new KeyboardEvent('keyup', eventOptions);
+	element.dispatchEvent(event);
+}
+
+function waitForElement(table, entry) {
+	return new Promise((resolve) => {
+		if (window.newui) {
+			let interval = setInterval(() => {
+				console.log(entry);
+				if (table.querySelector('input[type="checkbox"]') || table.querySelector('td.no-data')) {
+					if (table.querySelector('td.no-data')) {
+						if (!window.missingChoices.includes(entry) && !window.foundChoices.includes(entry)) {
+							window.missingChoices.push(entry);
+						}
+					} else {
+						if (!window.foundChoices.includes(entry)) {
+							window.foundChoices.push(entry);
+						}
+					}
+					addButton.removeAttribute('disabled');
+					clearInterval(interval);
+					resolve();
+				}
+			}, 50);
+		} else {
+			if (table.querySelectorAll('li').length == 0) {
+				if (!window.missingChoices.includes(entry) && !window.foundChoices.includes(entry)) {
+					window.missingChoices.push(entry);
+				}
+			} else {
+				if (!window.foundChoices.includes(entry)) {
+					window.foundChoices.push(entry);
+				}
+			}
+			addButton.removeAttribute('disabled');
+			resolve();
+		}
+	});
+}
+
+function delay(ms) {
+	return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function processEntries(dataArray, inputTable, outputTable, searchBox, addButton) {
+	for (let i = 0; i < dataArray.length; i += 1) {
+		if (dataArray[i].length > 0) {
+			searchBox.value = dataArray[i];
+			if (window.newui) {
+				pressEnter(searchBox);
+			} else {
+				searchBox.dispatchEvent(new Event('change'));
+			}
+			addButton.setAttribute('disabled', '');
+			await delay(50);
+			await waitForElement(inputTable, dataArray[i]);
+
+			addButton.click();
+			await delay(50);
+			await waitForElement(inputTable, dataArray[i]);
+		}
+	}
+	if (window.missingChoices.length > 0) {
+		modaldialog.innerHTML = '<b>Choices not found:</b><pre>' + window.missingChoices.join('<br>') + '</pre>';
+		$('#modaldialog').dialog({
+			draggable: false,
+			resizable: false,
+			width: 500,
+			open: function(event, ui) {
+				document.getElementById('modaldialog').style.setProperty('max-height', '500px', 'important');
+				document.getElementById('modaldialog').previousSibling.style.height = '0px';
+				$('#modaldialog').dialog({
+					position: {
+						my: "center",
+						at: "center",
+						of: window
+					}
+				});
+			}
+		});
+		window.missingChoices = [];
+	}
+}
+
+window.searchBox.addEventListener('paste', function(event) {
+	event.preventDefault();
+	let pastedText = (event.clipboardData || window.clipboardData).getData('text');
+	let modifiedText = pastedText.replace(/\r?\n/g, '\\n');
+	let dataArray = modifiedText.split('\\n');
+	processEntries(dataArray, window.inputTable, window.outputTable, window.searchBox, window.addButton);
+});
+```
+To install this bookmarklet, create a new entry in your browser's Favorites Bar and set its URL to the following string:
+```js
+javascript:(function()%7Blet%20listpage%20%3D%20document.getElementById('_ListPage').contentWindow%3Bif%20(listpage.document.querySelector('rwc-multi-list-picker')%20!%3D%3D%20null)%20%7Bwindow.newui%20%3D%20true%3B%7D%20else%20%7Bwindow.newui%20%3D%20false%3B%7Dif%20(window.newui)%20%7Bwindow.addButton%20%3D%20listpage.document.querySelector('rwc-multi-list-picker').shadowRoot.querySelector('rwc-side-by-side-picker').shadowRoot.querySelector('button%5Btitle%3D%22Move%20all%20left%20to%20right%22%5D')%3Bwindow.searchBox%20%3D%20listpage.document.querySelector('rwc-multi-list-picker').shadowRoot.querySelector('rwc-item-list%5Bslot%3D%22left%22%5D').shadowRoot.querySelector('rwc-grid').shadowRoot.querySelector('rwc-text-condition-input').shadowRoot.querySelector('input')%3Bwindow.inputTable%20%3D%20listpage.document.querySelector('rwc-multi-list-picker').shadowRoot.querySelector('rwc-item-list%5Bslot%3D%22left%22%5D').shadowRoot.querySelector('rwc-grid').shadowRoot.querySelector('div.rwa-grid__content').querySelector('table')%3Bwindow.outputTable%20%3D%20listpage.document.querySelector('rwc-multi-list-picker').shadowRoot.querySelector('rwc-item-list%5Bslot%3D%22right%22%5D').shadowRoot.querySelector('rwc-grid').shadowRoot.querySelector('div.rwa-grid__content').querySelector('table')%3B%7D%20else%20%7Bwindow.addButton%20%3D%20listpage.document.querySelector('button%5Btitle%3D%22Move%20All%22%5D')%3Bwindow.searchBox%20%3D%20listpage.document.querySelector('div.multi-select-list-list%5Bname%3D%22available%22%5D').querySelector('input')%3Bwindow.inputTable%20%3D%20listpage.document.querySelector('div.multi-select-list-list%5Bname%3D%22available%22%5D').querySelector('ul')%3Bwindow.outputTable%20%3D%20listpage.document.querySelector('div.multi-select-list-list%5Bname%3D%22selected%22%5D').querySelector('ul')%3B%7Dwindow.foundChoices%20%3D%20%5B%5D%3Bwindow.missingChoices%20%3D%20%5B%5D%3Blet%20modaldialog%3Bif%20(document.getElementById('modaldialog'))%20%7Bmodaldialog%20%3D%20document.getElementById('modaldialog')%3Bmodaldialog.innerHTML%20%3D%20'%3Cpre%3E%3C%2Fpre%3E'%7D%20else%20%7Bmodaldialog%20%3D%20document.createElement('div')%3Bmodaldialog.id%20%3D%20'modaldialog'%3Bmodaldialog.style%20%3D%20'display%3A%20none%3B'%3Bdocument.body.appendChild(modaldialog)%3B%7Dfunction%20pressEnter(element)%20%7Blet%20eventOptions%20%3D%20%7Bkey%3A%20'Enter'%2CkeyCode%3A%2013%2Ccode%3A%20'Enter'%2Cwhich%3A%2013%2Cbubbles%3A%20true%2Ccancelable%3A%20true%7D%3Blet%20event%20%3D%20new%20KeyboardEvent('keydown'%2C%20eventOptions)%3Belement.dispatchEvent(event)%3Bevent%20%3D%20new%20InputEvent('input'%2C%20%7Bbubbles%3A%20true%2Ccancelable%3A%20true%2CinputType%3A%20'insertText'%2Cdata%3A%20element.value%7D)%3Belement.dispatchEvent(event)%3Bevent%20%3D%20new%20KeyboardEvent('keypress'%2C%20eventOptions)%3Belement.dispatchEvent(event)%3Bevent%20%3D%20new%20KeyboardEvent('keyup'%2C%20eventOptions)%3Belement.dispatchEvent(event)%3B%7Dfunction%20waitForElement(table%2C%20entry)%20%7Breturn%20new%20Promise((resolve)%20%3D%3E%20%7Bif%20(window.newui)%20%7Blet%20interval%20%3D%20setInterval(()%20%3D%3E%20%7Bconsole.log(entry)%3Bif%20(table.querySelector('input%5Btype%3D%22checkbox%22%5D')%20%7C%7C%20table.querySelector('td.no-data'))%20%7Bif%20(table.querySelector('td.no-data'))%20%7Bif%20(!window.missingChoices.includes(entry)%20%26%26%20!window.foundChoices.includes(entry))%20%7Bwindow.missingChoices.push(entry)%3B%7D%7D%20else%20%7Bif%20(!window.foundChoices.includes(entry))%20%7Bwindow.foundChoices.push(entry)%3B%7D%7DaddButton.removeAttribute('disabled')%3BclearInterval(interval)%3Bresolve()%3B%7D%7D%2C%2050)%3B%7D%20else%20%7Bif%20(table.querySelectorAll('li').length%20%3D%3D%200)%20%7Bif%20(!window.missingChoices.includes(entry)%20%26%26%20!window.foundChoices.includes(entry))%20%7Bwindow.missingChoices.push(entry)%3B%7D%7D%20else%20%7Bif%20(!window.foundChoices.includes(entry))%20%7Bwindow.foundChoices.push(entry)%3B%7D%7DaddButton.removeAttribute('disabled')%3Bresolve()%3B%7D%7D)%3B%7Dfunction%20delay(ms)%20%7Breturn%20new%20Promise(resolve%20%3D%3E%20setTimeout(resolve%2C%20ms))%3B%7Dasync%20function%20processEntries(dataArray%2C%20inputTable%2C%20outputTable%2C%20searchBox%2C%20addButton)%20%7Bfor%20(let%20i%20%3D%200%3B%20i%20%3C%20dataArray.length%3B%20i%20%2B%3D%201)%20%7Bif%20(dataArray%5Bi%5D.length%20%3E%200)%20%7BsearchBox.value%20%3D%20dataArray%5Bi%5D%3Bif%20(window.newui)%20%7BpressEnter(searchBox)%3B%7D%20else%20%7BsearchBox.dispatchEvent(new%20Event('change'))%3B%7DaddButton.setAttribute('disabled'%2C%20'')%3Bawait%20delay(50)%3Bawait%20waitForElement(inputTable%2C%20dataArray%5Bi%5D)%3BaddButton.click()%3Bawait%20delay(50)%3Bawait%20waitForElement(inputTable%2C%20dataArray%5Bi%5D)%3B%7D%7Dif%20(window.missingChoices.length%20%3E%200)%20%7Bmodaldialog.innerHTML%20%3D%20'%3Cb%3EChoices%20not%20found%3A%3C%2Fb%3E%3Cpre%3E'%20%2B%20window.missingChoices.join('%3Cbr%3E')%20%2B%20'%3C%2Fpre%3E'%3B%24('%23modaldialog').dialog(%7Bdraggable%3A%20false%2Cresizable%3A%20false%2Cwidth%3A%20500%2Copen%3A%20function(event%2C%20ui)%20%7Bdocument.getElementById('modaldialog').style.setProperty('max-height'%2C%20'500px'%2C%20'important')%3Bdocument.getElementById('modaldialog').previousSibling.style.height%20%3D%20'0px'%3B%24('%23modaldialog').dialog(%7Bposition%3A%20%7Bmy%3A%20%22center%22%2Cat%3A%20%22center%22%2Cof%3A%20window%7D%7D)%3B%7D%7D)%3Bwindow.missingChoices%20%3D%20%5B%5D%3B%7D%7Dwindow.searchBox.addEventListener('paste'%2C%20function(event)%20%7Bevent.preventDefault()%3Blet%20pastedText%20%3D%20(event.clipboardData%20%7C%7C%20window.clipboardData).getData('text')%3Blet%20modifiedText%20%3D%20pastedText.replace(%2F%5Cr%3F%5Cn%2Fg%2C%20'%5C%5Cn')%3Blet%20dataArray%20%3D%20modifiedText.split('%5C%5Cn')%3BprocessEntries(dataArray%2C%20window.inputTable%2C%20window.outputTable%2C%20window.searchBox%2C%20window.addButton)%3B%7D)%7D)()
 ```
 
 ### Download Native File
