@@ -9,7 +9,7 @@ A collection of bookmarklets for Relativity(One) administrators.
 - [Republish Processing Sets](#republish-processing-sets)
 - [Select All Searches](#select-all-searches)
 - [Export Saved Searches](#export-saved-searches)
-- [Show Import/Export Job Configuration](#show-importexport-job-configuration)
+- ~~[Show Import/Export Job Configuration](#show-importexport-job-configuration)~~
 - [Filter Analytics Entities From All Custodians](#filter-analytics-entities-from-all-custodians)
 - [Filter for Several Multiple Choices](#filter-for-several-multiple-choices)
 - [Download Native File (ECA workspace)](#download-native-file)
@@ -839,6 +839,10 @@ javascript:(function()%7Bwindow.listpage%20%3D%20document.getElementById('_ListP
 ```
 
 ### Show Import/Export Job Configuration
+*UPDATE: RelOne now lets you see the Import/Export Job details.*
+<details>
+  <summary>Show the code anyway</summary>
+
 Relativity does not make it easy to view Job Configuration of previous Import/Export Jobs. This bookmarklet pulls a config JSON for the currently highlighted job, and displays it in a modal dialog with syntax highlighting.
 ```js
 if (document.getElementsByClassName('os-header__breadcrumbs-element-last')[0].innerText == 'Import/Export Job') {
@@ -920,6 +924,7 @@ To install this bookmarklet, create a new entry in your browser's Favorites Bar 
 ```js
 javascript:(function()%7Bif%20(document.getElementsByClassName('os-header__breadcrumbs-element-last')%5B0%5D.innerText%20%3D%3D%20'Import%2FExport%20Job')%20%7Blet%20csrftoken%20%3D%20window.top.GetCsrfTokenFromPage()%3Blet%20host%20%3D%20window.top.location.host%3Blet%20urlparams%20%3D%20new%20URLSearchParams(window.top.location.search)%3Blet%20workspaceid%20%3D%20urlparams.get('AppID')%3Blet%20listpage%20%3D%20document.getElementById('_ListPage').contentWindow.document%3Blet%20artifactid%20%3D%20listpage.getElementById('itemList').shadowRoot.querySelector('rwc-grid').shadowRoot.querySelector('tr.rwa-grid__table-row.highlighted').getAttribute('data-row-id')%3Blet%20modaldialog%3Bif%20(document.getElementById('modaldialog'))%20%7Bmodaldialog%20%3D%20document.getElementById('modaldialog')%3Bmodaldialog.innerHTML%20%3D%20'%3Cpre%3E%3C%2Fpre%3E'%7D%20else%20%7Bmodaldialog%20%3D%20document.createElement('div')%3Bmodaldialog.id%20%3D%20'modaldialog'%3Bmodaldialog.style%20%3D%20'display%3A%20none%3B'%3Bdocument.body.appendChild(modaldialog)%3B%7Dfunction%20syntaxHighlight(json)%20%7Bjson%20%3D%20json.replace(%2F%26%2Fg%2C%20'%26amp%3B').replace(%2F%3C%2Fg%2C%20'%26lt%3B').replace(%2F%3E%2Fg%2C%20'%26gt%3B')%3Breturn%20json.replace(%2F(%22(%5C%5Cu%5Ba-zA-Z0-9%5D%7B4%7D%7C%5C%5C%5B%5Eu%5D%7C%5B%5E%5C%5C%22%5D)*%22(%5Cs*%3A)%3F%7C%5Cb(true%7Cfalse%7Cnull)%5Cb%7C-%3F%5Cd%2B(%3F%3A%5C.%5Cd*)%3F(%3F%3A%5BeE%5D%5B%2B%5C-%5D%3F%5Cd%2B)%3F)%2Fg%2C%20function%20(match)%20%7Bvar%20style%20%3D%20'color%3A%20%23df5320%3B'%3Bif%20(%2F%5E%22%2F.test(match))%20%7Bif%20(%2F%3A%24%2F.test(match))%20%7Bstyle%20%3D%20'color%3A%20%23407ee7%3B'%3B%7D%20else%20%7Bstyle%20%3D%20'color%3A%20%237b9726%3B'%3B%7D%7D%20else%20if%20(%2Ftrue%7Cfalse%2F.test(match))%20%7Bstyle%20%3D%20'color%3A%20%233d97b8%3B'%3B%7D%20else%20if%20(%2Fnull%2F.test(match))%20%7Bstyle%20%3D%20'color%3A%20%23000000%3B'%3B%7Dreturn%20'%3Cspan%20style%3D%22'%20%2B%20style%20%2B%20'%22%3E'%20%2B%20match%20%2B%20'%3C%2Fspan%3E'%3B%7D)%3B%7Dfetch('https%3A%2F%2F'%20%2B%20host%20%2B%20'%2FRelativity.Rest%2FAPI%2FRelativity.ObjectManager%2Fv1%2Fworkspace%2F'%20%2B%20workspaceid.toString()%20%2B%20'%2Fobject%2Fread'%2C%20%7B'headers'%3A%20%7B'accept'%3A%20'*%2F*'%2C'accept-language'%3A%20'en-US%2Cen%3Bq%3D0.9'%2C'content-type'%3A%20'application%2Fjson'%2C'sec-fetch-dest'%3A%20'empty'%2C'sec-fetch-mode'%3A%20'cors'%2C'sec-fetch-site'%3A%20'same-origin'%2C'x-csrf-header'%3A%20csrftoken%7D%2C'referrerPolicy'%3A%20'strict-origin-when-cross-origin'%2C'body'%3A%20'%7B%22Request%22%3A%7B%22Object%22%3A%7B%22ArtifactID%22%3A'%20%2B%20artifactid.toString()%20%2B%20'%7D%2C%22Fields%22%3A%5B%7B%22Name%22%3A%22Job%20Configuration%22%7D%5D%7D%7D'%2C'method'%3A%20'POST'%2C'mode'%3A%20'cors'%2C'credentials'%3A%20'include'%7D).then(response%20%3D%3E%20%7Breturn%20response.json()%3B%7D).then(jsn%20%3D%3E%20%7Btry%20%7Bmodaldialog.innerHTML%20%3D%20'%3Cpre%3E'%20%2B%20syntaxHighlight(JSON.stringify(JSON.parse(jsn%5B'Object'%5D%5B'FieldValues'%5D%5B0%5D%5B'Value'%5D)%2C%20null%2C%204))%20%2B%20'%3C%2Fpre%3E'%3B%24('%23modaldialog').dialog(%7Bdraggable%3A%20false%2Cresizable%3A%20false%2Cwidth%3A%20500%2Copen%3A%20function%20(event%2C%20ui)%20%7Bdocument.getElementById('modaldialog').style.setProperty('max-height'%2C%20'500px'%2C%20'important')%3Bdocument.getElementById('modaldialog').previousSibling.style.height%20%3D%20'0px'%3B%24('%23modaldialog').dialog(%7Bposition%3A%20%7B%20my%3A%20%22center%22%2C%20at%3A%20%22center%22%2C%20of%3A%20window%20%7D%7D)%3B%7D%7D)%3B%7D%20catch%20%7Balert('No%20Job%20Configuration%20available.')%3B%7D%7D)%3B%7D%7D)()
 ```
+</details>
 
 ### Filter Analytics Entities From All Custodians
 You run Name Normalization and suddenly the "All Custodians" field is polluted with tens of thousands of non-custodian entities without a way to separate them from Processing Custodians. Run this bookmarklet when in the Edit Search interface, and it will filter out all Analytics Entities when performing condition searches on any Entity field.
